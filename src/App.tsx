@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardLayout from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
 import SettingsPage from './pages/SettingsPage'
+import JurusanPage from './pages/JurusanPage'
 import './App.css'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="jurusan" element={<JurusanPage />} />
         </Route>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
