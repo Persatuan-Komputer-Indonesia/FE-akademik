@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { LoaderCircle } from "lucide-react"
+import { authAPI } from "@/features/auth/auth.api"
 
 interface LocationState {
   email: string
@@ -9,51 +10,6 @@ interface LocationState {
   isRegistration?: boolean
 }
 
-/* ===========================
-   MOCK AUTH API
-=========================== */
-
-const mockAuthAPI = {
-  verifyOtp: async ({
-    email,
-    otpCode,
-  }: {
-    email: string
-    otpCode: string
-  }) => {
-    console.log("Mock verifying OTP:", { email, otpCode })
-
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (otpCode === "123456") {
-          resolve({ message: "OTP verified successfully" })
-        } else {
-          reject(new Error("Invalid or expired OTP"))
-        }
-      }, 1000)
-    })
-  },
-
-  register: async (data: any) => {
-    console.log("Mock register (send OTP):", data)
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ message: "OTP sent to email" })
-      }, 1000)
-    })
-  },
-
-  resendOtp: async ({ email }: { email: string }) => {
-    console.log("Mock resend OTP:", email)
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ message: "OTP resent successfully" })
-      }, 1000)
-    })
-  },
-}
 
 /* ===========================
    COMPONENT
@@ -106,58 +62,67 @@ export default function OtpPage() {
     }
   }
 
-  const handleVerify = async () => {
-    const otpCode = otp.join("")
-    if (otpCode.length !== 6) {
-      setMessage("Please enter 6 digit code.")
-      return
-    }
-
-    try {
-      setLoading(true)
-      setMessage("")
-
-      await mockAuthAPI.verifyOtp({
-        email,
-        otpCode,
-      })
-
-      navigate("/login", {
-        state: {
-          message: isRegistration
-            ? "Registration successful! Please login."
-            : "Email verified successfully.",
-        },
-      })
-    } catch (error: any) {
-      setOtp(Array(6).fill(""))
-      setMessage(error.message)
-    } finally {
-      setLoading(false)
-    }
+const handleVerify = async () => {
+  const otpCode = otp.join("")
+  if (otpCode.length !== 6) {
+    setMessage("Please enter 6 digit code.")
+    return
   }
+
+  try {
+    setLoading(true)
+    setMessage("")
+
+    await authAPI.forgotVerify({
+      email,
+      otp: otpCode,
+    })
+
+    navigate("/reset-password", {
+      state: { email },
+    })
+
+  } catch (error: unknown) {
+    setOtp(Array(6).fill(""))
+    if (error instanceof Error) {
+      setMessage(error.message || "Verification failed")
+    } else {
+      setMessage("Verification failed")
+    }
+  } finally {
+    setLoading(false)
+  }
+}
 
   const handleResend = async () => {
-    if (!canResend) return
+  if (!canResend) return
 
-    try {
-      setResendLoading(true)
+  try {
+    setResendLoading(true)
 
-      if (isRegistration && fullName && password) {
-        await mockAuthAPI.register({ fullName, email, password })
-      } else {
-        await mockAuthAPI.resendOtp({ email })
-      }
-
-      setTimer(60)
-      setCanResend(false)
-      setMessage("New OTP has been sent.")
-    } catch (error: any) {
-      setMessage("Failed to resend OTP.")
-    } finally {
-      setResendLoading(false)
+    if (isRegistration && fullName && password) {
+      await authAPI.registerRequest({
+        username: fullName,
+        email,
+        password,
+      })
+    } else {
+      await authAPI.forgotRequest(email)
     }
+
+    setTimer(60)
+    setCanResend(false)
+    setMessage("New OTP has been sent.")
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      setMessage(error.message || "Failed to resend OTP.")
+    } else {
+      setMessage("Failed to resend OTP.")
+    }
+  } finally {
+    setResendLoading(false)
   }
+}
 
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60)
@@ -187,7 +152,11 @@ export default function OtpPage() {
               type="text"
               maxLength={1}
               value={digit}
-              ref={(el) => (inputsRef.current[index] = el)}
+              ref={(el) => {
+              if (el) {
+                inputsRef.current[index] = el;
+              }
+              }}
               onChange={(e) => handleChange(e.target.value, index)}
               className="w-12 h-14 text-center text-xl font-bold border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />

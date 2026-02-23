@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { LoaderCircle } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { authAPI } from "@/features/auth/auth.api"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -20,22 +21,33 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!email.trim()) {
-      setError("Please enter a valid email.")
-      return
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    try {
+      setLoading(true);
+  
+      await authAPI.forgotRequest(email);
+  
+      setSuccess(true); // Update the state value
+      navigate("/otp", {
+        state: {
+          email,
+          isRegistration: false,
+        },
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSuccess(true)
-    }, 2000)
-  }
-
-  return (
+  };
+ 
+ return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">

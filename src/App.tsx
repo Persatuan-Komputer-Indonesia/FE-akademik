@@ -8,6 +8,7 @@ import JurusanPage from './pages/JurusanPage'
 import LessonPage from './pages/LessonPage'
 import ForgotPasswordPage from './pages/ForgotPassPage'
 import OTPPage from './pages/OTPPage'
+import ResetPasswordPage from './pages/ResetPassPage'
 import './App.css'
 
 function App() {
@@ -18,14 +19,15 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/otp" element={<OTPPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="jurusan" element={<JurusanPage />} />
           <Route path="lesson" element={<LessonPage />} />
         </Route>
-        <Route path="/" element={<Navigate to="/otp" replace />} />
-        <Route path="*" element={<Navigate to="/otp" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   )
