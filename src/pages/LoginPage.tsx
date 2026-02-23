@@ -61,10 +61,27 @@ export default function LoginPage() {
             <Button className="w-full" type="submit">
               Sign in
             </Button>
-            <div className="text-sm text-center text-gray-500">
-              <a href="#" className="hover:underline">
-                Forgot your password?
-              </a>
+            
+            <div className="text-sm text-center text-gray-500 space-y-2">
+              <div>
+                <a
+                  href="/forgot-password"
+                  className="hover:underline"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+            
+              <div>
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate("/register")}
+                  className="hover:underline"
+                >
+                  Create one
+                </button>
+              </div>
             </div>
           </CardFooter>
         </form>
