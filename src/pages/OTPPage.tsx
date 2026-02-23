@@ -77,8 +77,7 @@ export default function OtpPage() {
 
   useEffect(() => {
     if (!email) {
-        console.warn("No email provided for OTP verification. Redirecting to login.")
-        //   navigate("/login")
+      navigate("/login")
     }
   }, [email, navigate])
 
