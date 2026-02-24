@@ -13,28 +13,45 @@ import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const navigate = useNavigate()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Logging in with:", email, password)
-    navigate("/")
+    if(password !== confirmPassword) {
+        alert("Passwords don't match!")
+        return
+    }
+    console.log("Registering with:", username, email, password)
+    navigate("/login")
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Register</CardTitle>
           <CardDescription className="text-center">
-            Enter your email and password to access your account
+            Create a new account to get started
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
           <CardContent className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Your username"
+                value={username}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+                required
+              />
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -56,32 +73,26 @@ export default function LoginPage() {
                 required
               />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button className="w-full" type="submit">
-              Sign in
+              Sign up
             </Button>
-            
-            <div className="text-sm text-center text-gray-500 space-y-2">
-              <div>
-                <a
-                  href="/forgot-password"
-                  className="hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-            
-              <div>
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => navigate("/register")}
-                  className="hover:underline"
-                >
-                  Create one
-                </button>
-              </div>
+            <div className="text-sm text-center text-gray-500">
+                Already have an account?{" "}
+              <a href="/login" className="hover:underline">
+                Sign in
+              </a>
             </div>
           </CardFooter>
         </form>

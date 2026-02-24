@@ -1,107 +1,122 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
-import { BookOpen, Search, Plus, Pencil, Trash2, } from "lucide-react"
+import { BookOpen, Search, Plus, Pencil, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import CreateUpdateModal, { type FormField } from "@/components/CreateUpdateModal"
+import CreateUpdateModal, { type FormField, type FormFieldOption } from "@/components/CreateUpdateModal"
 
-// 1. Interface Disesuaikan dengan Tabel Lesson
 interface Jurusan {
-  id: string;
-  nama_jurusan: string;
+  id: string
+  nama_jurusan: string
 }
 
 interface Lesson {
-  id: string;
-  nama: string;
-  url_file: string | null;
-  jurusan: Jurusan | null;
+  id: string
+  nama: string
+  url_file: string | null
+  jurusan: Jurusan | null
 }
-
-// 2. Field Modal Disesuaikan untuk Lesson (Butuh jurusan_id)
-const lessonFields: FormField[] = [
-  { key: "nama", label: "Nama Lesson", placeholder: "Masukkan nama lesson" },
-  { key: "url_file", label: "URL File (Link)", placeholder: "Masukkan link materi (opsional)" },
-  { key: "jurusan_id", label: "ID Jurusan", placeholder: "Paste ID Jurusan di sini" },
-]
 
 export default function LessonPage() {
   const [search, setSearch] = useState("")
-  const [data, setData] = useState<Lesson[]>([])
-  
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [jurusans, setJurusans] = useState<Jurusan[]>([]) // State khusus simpan list Jurusan
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   const [createOpen, setCreateOpen] = useState(false)
   const [editItem, setEditItem] = useState<Lesson | null>(null)
 
-  // 3. FETCH LESSONS (BENAR KE /api/lessons)
-  const fetchLessons = async () => {
+  // === FETCH DATA LESSON & JURUSAN BARENGAN ===
+  const fetchData = async () => {
     try {
       setIsLoading(true)
-      const response = await axios.get('http://localhost:5000/lessons')
-      setData(response.data)
-      setError(null)
-    } catch (err: any) {
-      console.error("Error fetching lessons:", err)
-      setError("Gagal mengambil data dari server.")
+      // Promise.all bikin fetch berjalan paralel, lebih cepat!
+      const [resLessons, resJurusans] = await Promise.all([
+        axios.get("http://localhost:5000/lessons"),
+        axios.get("http://localhost:5000/jurusan")
+      ])
+      
+      setLessons(resLessons.data)
+      setJurusans(resJurusans.data)
+    } catch (err) {
+      console.error("Gagal mengambil data:", err)
+      alert("Gagal konek ke server bre!")
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchLessons()
+    fetchData()
   }, [])
 
-  const filtered = data.filter(
+  // === MENGUBAH DATA JURUSAN JADI FORMAT DROPDOWN ===
+  const jurusanOptions: FormFieldOption[] = jurusans.map((j) => ({
+    label: j.nama_jurusan, // Yang dilihat Admin
+    value: j.id,           // Yang dikirim ke Backend
+  }))
+
+  // Konfigurasi Field Modal sekarang dipindah ke dalam agar bisa baca jurusanOptions
+  const lessonFields: FormField[] = [
+    { key: "nama", label: "Nama Lesson", placeholder: "Masukkan nama lesson" },
+    { key: "url_file", label: "URL File", placeholder: "Masukkan link materi" },
+    {
+      key: "jurusan_id",
+      label: "Jurusan",
+      placeholder: "Pilih Jurusan",
+      type: "select", // Triggers Dropdown di komponen Modal kita
+      options: jurusanOptions,
+    },
+  ]
+
+  const filtered = lessons.filter(
     (item) =>
       item.nama.toLowerCase().includes(search.toLowerCase()) ||
-      (item.jurusan?.nama_jurusan.toLowerCase() || "").includes(search.toLowerCase())
+      (item.jurusan?.nama_jurusan || "").toLowerCase().includes(search.toLowerCase())
   )
 
-  // 4. CREATE LESSON
+  // === CREATE LESSON ===
   const handleCreate = async (formData: Record<string, string>) => {
     try {
-      await axios.post('http://localhost:5000/lessons', {
+      await axios.post("http://localhost:5000/lessons", {
         nama: formData.nama,
         url_file: formData.url_file || null,
-        jurusan_id: formData.jurusan_id // Wajib kirim ID Jurusan
+        jurusan_id: formData.jurusan_id,
       })
       setCreateOpen(false)
-      fetchLessons()
-    } catch (err) {
-      alert("Gagal menambahkan lesson. Pastikan ID Jurusan benar!")
+      fetchData() // Refresh tabel
+    } catch (err: any) {
       console.error(err)
+      alert(err.response?.data?.message || "Gagal membuat lesson!")
     }
   }
 
-  // 5. UPDATE LESSON
+  // === UPDATE LESSON ===
   const handleUpdate = async (formData: Record<string, string>) => {
     if (!editItem) return
     try {
       await axios.put(`http://localhost:5000/lessons/${editItem.id}`, {
         nama: formData.nama,
         url_file: formData.url_file || null,
-        jurusan_id: formData.jurusan_id
+        jurusan_id: formData.jurusan_id,
       })
       setEditItem(null)
-      fetchLessons()
-    } catch (err) {
-      alert("Gagal mengupdate lesson.")
+      fetchData() // Refresh tabel
+    } catch (err: any) {
       console.error(err)
+      alert(err.response?.data?.message || "Gagal update lesson!")
     }
   }
 
-  // 6. DELETE LESSON
+  // === DELETE LESSON ===
   const handleDelete = async (id: string) => {
     if (window.confirm("Yakin mau hapus lesson ini?")) {
       try {
         await axios.delete(`http://localhost:5000/lessons/${id}`)
-        fetchLessons()
-      } catch (err) {
-        alert("Gagal menghapus data.")
+        fetchData() // Refresh tabel
+      } catch (err: any) {
         console.error(err)
+        alert(err.response?.data?.message || "Gagal hapus lesson!")
       }
     }
   }
@@ -114,14 +129,14 @@ export default function LessonPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Lesson</h1>
-          <p className="text-sm text-muted-foreground">Kelola data lesson</p>
+          <p className="text-sm text-muted-foreground">Kelola materi pelajaran</p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-sm text-muted-foreground">Total Lesson</p>
-          <p className="mt-1 text-2xl font-bold">{data.length}</p>
+          <p className="mt-1 text-2xl font-bold">{lessons.length}</p>
         </div>
       </div>
 
@@ -129,7 +144,7 @@ export default function LessonPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Cari lesson..."
+            placeholder="Cari lesson atau jurusan..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -142,36 +157,43 @@ export default function LessonPage() {
       </div>
 
       <div className="rounded-xl border bg-card shadow-sm">
-        <div className="grid grid-cols-[auto_1fr_1fr_1fr_80px] items-center gap-4 border-b px-4 py-3 text-sm font-medium text-muted-foreground">
+        <div className="grid grid-cols-[60px_1fr_1fr_1fr_auto] items-center gap-4 border-b px-4 py-3 text-sm font-medium text-muted-foreground">
           <span>No</span>
           <span>Nama Lesson</span>
-          <span>URL File</span>
+          <span>Link Materi</span>
           <span>Jurusan</span>
-          <span className="text-center">Aksi</span>
+          <span>Aksi</span>
         </div>
 
-        {isLoading && <div className="p-8 text-center text-muted-foreground">Loading data dari server...</div>}
-        {error && <div className="p-8 text-center text-red-500">{error}</div>}
-
-        {!isLoading && !error && filtered.length === 0 ? (
+        {isLoading ? (
+           <div className="px-4 py-12 text-center text-sm text-muted-foreground">
+             Loading data dari server...
+           </div>
+        ) : filtered.length === 0 ? (
           <div className="px-4 py-12 text-center text-sm text-muted-foreground">
             Tidak ada data ditemukan
           </div>
         ) : (
-          !isLoading && !error && filtered.map((item, index) => (
+          filtered.map((item, index) => (
             <div
               key={item.id}
-              className="grid grid-cols-[auto_1fr_1fr_1fr_80px] items-center gap-4 border-b px-4 py-3 text-sm transition-colors last:border-b-0 hover:bg-muted/50"
+              className="grid grid-cols-[60px_1fr_1fr_1fr_auto] items-center gap-4 border-b px-4 py-3 text-sm transition-colors last:border-b-0 hover:bg-muted/50"
             >
-              <span className="font-medium text-muted-foreground w-6">{index + 1}</span>
+              <span className="font-medium text-muted-foreground">{index + 1}</span>
               <span className="font-medium">{item.nama}</span>
               <span className="text-blue-500 truncate hover:underline">
-                {item.url_file ? <a href={item.url_file} target="_blank" rel="noreferrer">Link Materi</a> : "-"}
+                {item.url_file ? (
+                  <a href={item.url_file} target="_blank" rel="noreferrer">
+                    Buka File
+                  </a>
+                ) : (
+                  <span className="text-muted-foreground no-underline">-</span>
+                )}
               </span>
               <span className="text-muted-foreground truncate">
-                {item.jurusan ? item.jurusan.nama_jurusan : "Umum"}
+                {item.jurusan?.nama_jurusan || "Umum"}
               </span>
-              <div className="flex items-center justify-center gap-1">
+              <div className="flex items-center gap-1">
                 <button
                   onClick={() => setEditItem(item)}
                   className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
