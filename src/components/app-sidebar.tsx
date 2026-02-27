@@ -1,5 +1,5 @@
 import * as React from "react"
-import { GraduationCap, BookOpen, LogOut, Trash2 } from "lucide-react"
+import { GraduationCap, BookOpen, LogOut, Trash2, Users } from "lucide-react"
 import { NavLink, useNavigate } from "react-router-dom"
 
 import {
@@ -17,7 +17,7 @@ import {
 
 const navItems = [
   {
-    title: "Jurusan",
+    title: "Jurusan", 
     url: "/dashboard/jurusan",
     icon: GraduationCap,
   },
@@ -25,6 +25,11 @@ const navItems = [
     title: "Lesson",
     url: "/dashboard/lesson",
     icon: BookOpen,
+  },
+  {
+    title: "User",
+    url: "/dashboard/user",
+    icon: Users,
   },
 ]
 

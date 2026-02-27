@@ -8,6 +8,8 @@ import JurusanPage from './pages/JurusanPage'
 import LessonPage from './pages/LessonPage'
 import ForgotPasswordPage from './pages/ForgotPassPage'
 import OTPPage from './pages/OTPPage'
+// BARU: Import komponen UserListPage yang baru kamu buat
+import UserListPage from './pages/UserListPage' 
 import './App.css'
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="jurusan" element={<JurusanPage />} />
           <Route path="lesson" element={<LessonPage />} />
+          {/* BARU: Tambahkan rute untuk halaman User */}
+          <Route path="user" element={<UserListPage />} /> 
         </Route>
 
         {/* Redirect Default (Pilih ke Login karena lebih masuk akal) */}

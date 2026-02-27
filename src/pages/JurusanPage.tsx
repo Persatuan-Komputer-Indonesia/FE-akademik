@@ -5,9 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import CreateUpdateModal, { type FormField } from "@/components/CreateUpdateModal"
 
-// 1. SESUAIKAN INTERFACE DENGAN BACKEND (nama_jurusan, deskripsi)
 interface Jurusan {
-  id: string; // Prisma pakai UUID (String)
+  id: string; 
   nama_jurusan: string;
   deskripsi: string;
 }
@@ -32,7 +31,7 @@ export default function JurusanPage() {
       setData(response.data)
     } catch (err) {
       console.error("Gagal mengambil data jurusan:", err)
-      alert("Gagal konek ke backend bre! Pastikan server nyala.")
+      alert("Gagal konek ke backend Pastikan server nyala.")
     } finally {
       setIsLoading(false)
     }

@@ -40,7 +40,7 @@ export default function LessonPage() {
       setJurusans(resJurusans.data)
     } catch (err) {
       console.error("Gagal mengambil data:", err)
-      alert("Gagal konek ke server bre!")
+      alert("Gagal konek ke server")
     } finally {
       setIsLoading(false)
     }

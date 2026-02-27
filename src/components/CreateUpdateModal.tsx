@@ -20,8 +20,8 @@ export interface FormField {
   key: string
   label: string
   placeholder?: string
-  type?: string // Bisa 'text', 'password', 'select', dll
-  options?: FormFieldOption[] // Khusus dipakai kalau type-nya 'select'
+  type?: string 
+  options?: FormFieldOption[] 
 }
 
 interface CreateUpdateModalProps {
@@ -72,7 +72,6 @@ export default function CreateUpdateModal({
             <div key={field.key} className="space-y-2">
               <Label htmlFor={field.key}>{field.label}</Label>
               
-              {/* 2. Logika Pemilihan Render: Jika 'select', tampilkan Dropdown */}
               {field.type === "select" ? (
                 <select
                   id={field.key}
@@ -81,7 +80,6 @@ export default function CreateUpdateModal({
                     setForm((prev) => ({ ...prev, [field.key]: e.target.value }))
                   }
                   required
-                  // Class Tailwind ini meniru persis gaya Input bawaan Shadcn UI
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="" disabled>
@@ -94,7 +92,6 @@ export default function CreateUpdateModal({
                   ))}
                 </select>
               ) : (
-                /* Jika bukan 'select', render Input biasa */
                 <Input
                   id={field.key}
                   type={field.type ?? "text"}
