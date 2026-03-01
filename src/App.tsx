@@ -13,6 +13,9 @@ function App() {
         
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="jurusan" element={<JurusanPage />} />
+          <Route path="lesson" element={<LessonPage />} />
         </Route>
 
         

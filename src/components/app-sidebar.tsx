@@ -1,5 +1,5 @@
 import * as React from "react"
-import { GraduationCap, BookOpen, Settings, LogOut } from "lucide-react"
+import { GraduationCap, BookOpen, LogOut, Trash2 } from "lucide-react"
 import { NavLink, useNavigate } from "react-router-dom"
 
 import {
@@ -75,7 +75,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarSeparator />
 
-        <div className="flex items-center gap-3 px-3 py-2">
+        <NavLink
+          to="/dashboard/settings"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-sidebar-accent"
+        >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium">
             A
           </div>
@@ -83,24 +86,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <span className="text-sm font-medium">Admin</span>
             <span className="text-xs text-muted-foreground">admin@mail.com</span>
           </div>
-        </div>
+        </NavLink>
 
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <NavLink to="/dashboard/settings">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout}>
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center gap-1 px-2">
+          <SidebarMenu className="flex-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <button
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-destructive transition-colors hover:bg-destructive/10"
+            title="Hapus Permanen"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
