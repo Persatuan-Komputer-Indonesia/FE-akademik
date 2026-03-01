@@ -8,8 +8,7 @@ import JurusanPage from './pages/JurusanPage'
 import LessonPage from './pages/LessonPage'
 import ForgotPasswordPage from './pages/ForgotPassPage'
 import OTPPage from './pages/OTPPage'
-// BARU: Import komponen UserListPage yang baru kamu buat
-import UserListPage from './pages/UserListPage' 
+import ResetPasswordPage from './pages/ResetPassPage'
 import './App.css'
 
 function App() {
@@ -21,8 +20,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/otp" element={<OTPPage />} />
-        
-        {/* Rute Dashboard (Sudah rapi) */}
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
           <Route path="settings" element={<SettingsPage />} />
@@ -31,8 +29,6 @@ function App() {
           {/* BARU: Tambahkan rute untuk halaman User */}
           <Route path="user" element={<UserListPage />} /> 
         </Route>
-
-        {/* Redirect Default (Pilih ke Login karena lebih masuk akal) */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

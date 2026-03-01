@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { authAPI } from "@/features/auth/auth.api"
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("")
@@ -20,15 +21,31 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const navigate = useNavigate()
 
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault()
-    if(password !== confirmPassword) {
-        alert("Passwords don't match!")
-        return
-    }
-    console.log("Registering with:", username, email, password)
-    navigate("/login")
+const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (password !== confirmPassword) {
+    alert("Passwords don't match!");
+    return;
   }
+
+  try {
+    await authAPI.registerRequest({
+      username,
+      email,
+      password,
+    });
+
+    navigate("/otp", {
+      state: {
+        email,
+        isRegistration: true,
+      },
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {alert(err.message);}
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
