@@ -1,26 +1,38 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisPage'
 import DashboardLayout from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
-import DashboardLesson from './pages/DashboardLesson' // Ini file yang kita buat tadi
+import SettingsPage from './pages/SettingsPage'
+import JurusanPage from './pages/JurusanPage'
+import LessonPage from './pages/LessonPage'
+import ForgotPasswordPage from './pages/ForgotPassPage'
+import OTPPage from './pages/OTPPage'
+// BARU: Import komponen UserListPage yang baru kamu buat
+import UserListPage from './pages/UserListPage' 
 import './App.css'
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Rute Auth (Gabungan) */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/otp" element={<OTPPage />} />
         
+        {/* Rute Dashboard (Sudah rapi) */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="jurusan" element={<JurusanPage />} />
           <Route path="lesson" element={<LessonPage />} />
+          {/* BARU: Tambahkan rute untuk halaman User */}
+          <Route path="user" element={<UserListPage />} /> 
         </Route>
 
-        
-        <Route path="/lesson" element={<DashboardLesson />} />
-        
+        {/* Redirect Default (Pilih ke Login karena lebih masuk akal) */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
