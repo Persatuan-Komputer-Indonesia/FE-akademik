@@ -1,30 +1,32 @@
 import { useState } from "react"
-import { GraduationCap, Search, Plus, Pencil, Trash2 } from "lucide-react"
+import { BookOpen, Search, Plus, Pencil, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import CreateUpdateModal, { type FormField } from "@/components/CreateUpdateModal"
 
-interface Jurusan {
+interface Lesson {
   id: number
   name: string
   description: string
 }
 
-const jurusanFields: FormField[] = [
-  { key: "name", label: "Nama Jurusan", placeholder: "Masukkan nama jurusan" },
+const lessonFields: FormField[] = [
+  { key: "name", label: "Nama Lesson", placeholder: "Masukkan nama lesson" },
   { key: "description", label: "Deskripsi", placeholder: "Masukkan deskripsi" },
 ]
 
-const initialData: Jurusan[] = [
-  { id: 1, name: "Bisnis Digital", description: "Program studi yang mempelajari bisnis dan pemasaran digital" },
-  { id: 2, name: "Programmer", description: "Program studi yang mempelajari pemrograman dan pengembangan perangkat lunak" },
+const initialData: Lesson[] = [
+  { id: 1, name: "Matematika", description: "Pelajaran dasar matematika dan logika" },
+  { id: 2, name: "Bahasa Inggris", description: "Pelajaran bahasa Inggris untuk komunikasi" },
+  { id: 3, name: "Pemrograman Web", description: "Pelajaran pengembangan aplikasi web" },
+  { id: 4, name: "Basis Data", description: "Pelajaran pengelolaan dan desain database" },
 ]
 
-export default function JurusanPage() {
+export default function LessonPage() {
   const [search, setSearch] = useState("")
   const [data, setData] = useState(initialData)
   const [createOpen, setCreateOpen] = useState(false)
-  const [editItem, setEditItem] = useState<Jurusan | null>(null)
+  const [editItem, setEditItem] = useState<Lesson | null>(null)
 
   const filtered = data.filter(
     (item) =>
@@ -56,25 +58,25 @@ export default function JurusanPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-          <GraduationCap className="h-6 w-6" />
+          <BookOpen className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Jurusan</h1>
-          <p className="text-sm text-muted-foreground">Kelola data jurusan</p>
+          <h1 className="text-2xl font-bold tracking-tight">Lesson</h1>
+          <p className="text-sm text-muted-foreground">Kelola data lesson</p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground">Total Jurusan</p>
+          <p className="text-sm text-muted-foreground">Total Lesson</p>
           <p className="mt-1 text-2xl font-bold">{data.length}</p>
         </div>
         <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground">Total Lesson</p>
-          <p className="mt-1 text-2xl font-bold">24</p>
+          <p className="text-sm text-muted-foreground">Total Jurusan</p>
+          <p className="mt-1 text-2xl font-bold">2</p>
         </div>
         <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground">Jurusan Aktif</p>
+          <p className="text-sm text-muted-foreground">Lesson Aktif</p>
           <p className="mt-1 text-2xl font-bold">{data.length}</p>
         </div>
       </div>
@@ -83,7 +85,7 @@ export default function JurusanPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Cari jurusan..."
+            placeholder="Cari lesson..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -98,7 +100,7 @@ export default function JurusanPage() {
       <div className="rounded-xl border bg-card shadow-sm">
         <div className="grid grid-cols-[60px_1fr_1fr_auto] items-center gap-4 border-b px-4 py-3 text-sm font-medium text-muted-foreground">
           <span>ID</span>
-          <span>Nama Jurusan</span>
+          <span>Nama Lesson</span>
           <span>Deskripsi</span>
           <span>Aksi</span>
         </div>
@@ -139,8 +141,8 @@ export default function JurusanPage() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreate}
-        title="Tambah Jurusan"
-        fields={jurusanFields}
+        title="Tambah Lesson"
+        fields={lessonFields}
         submitLabel="Tambah"
       />
 
@@ -148,8 +150,8 @@ export default function JurusanPage() {
         open={!!editItem}
         onClose={() => setEditItem(null)}
         onSubmit={handleUpdate}
-        title="Edit Jurusan"
-        fields={jurusanFields}
+        title="Edit Lesson"
+        fields={lessonFields}
         defaultValues={
           editItem ? { name: editItem.name, description: editItem.description } : undefined
         }
