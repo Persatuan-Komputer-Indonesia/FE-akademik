@@ -15,6 +15,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Rute Auth (Gabungan) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -25,6 +26,8 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="jurusan" element={<JurusanPage />} />
           <Route path="lesson" element={<LessonPage />} />
+          {/* BARU: Tambahkan rute untuk halaman User */}
+          <Route path="user" element={<UserListPage />} /> 
         </Route>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />

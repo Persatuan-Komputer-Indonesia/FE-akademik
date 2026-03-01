@@ -1,55 +1,91 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import axios from "axios"
 import { GraduationCap, Search, Plus, Pencil, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import CreateUpdateModal, { type FormField } from "@/components/CreateUpdateModal"
 
 interface Jurusan {
-  id: number
-  name: string
-  description: string
+  id: string; 
+  nama_jurusan: string;
+  deskripsi: string;
 }
 
 const jurusanFields: FormField[] = [
-  { key: "name", label: "Nama Jurusan", placeholder: "Masukkan nama jurusan" },
-  { key: "description", label: "Deskripsi", placeholder: "Masukkan deskripsi" },
-]
-
-const initialData: Jurusan[] = [
-  { id: 1, name: "Bisnis Digital", description: "Program studi yang mempelajari bisnis dan pemasaran digital" },
-  { id: 2, name: "Programmer", description: "Program studi yang mempelajari pemrograman dan pengembangan perangkat lunak" },
+  { key: "nama_jurusan", label: "Nama Jurusan", placeholder: "Masukkan nama jurusan" },
+  { key: "deskripsi", label: "Deskripsi", placeholder: "Masukkan deskripsi" },
 ]
 
 export default function JurusanPage() {
   const [search, setSearch] = useState("")
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState<Jurusan[]>([]) 
+  const [isLoading, setIsLoading] = useState(true)
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editItem, setEditItem] = useState<Jurusan | null>(null)
 
-  const filtered = data.filter(
+  const fetchJurusan = async () => {
+    try {
+      setIsLoading(true)
+      const response = await axios.get("http://localhost:5000/jurusan") 
+      setData(response.data)
+    } catch (err) {
+      console.error("Gagal mengambil data jurusan:", err)
+      alert("Gagal konek ke backend Pastikan server nyala.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchJurusan()
+  }, [])
+
+const filtered = data.filter(
     (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase())
+      item.nama_jurusan.toLowerCase().includes(search.toLowerCase()) ||
+      (item.deskripsi && item.deskripsi.toLowerCase().includes(search.toLowerCase()))
   )
 
-  const handleCreate = (formData: Record<string, string>) => {
-    const newId = data.length > 0 ? Math.max(...data.map((d) => d.id)) + 1 : 1
-    setData((prev) => [...prev, { id: newId, name: formData.name, description: formData.description }])
+  const handleCreate = async (formData: Record<string, string>) => {
+    try {
+      await axios.post("http://localhost:5000/jurusan", {
+        nama_jurusan: formData.nama_jurusan,
+        deskripsi: formData.deskripsi,
+      })
+      setCreateOpen(false)
+      fetchJurusan() 
+    } catch (err: any) {
+      console.error(err)
+      alert(err.response?.data?.message || "Gagal membuat jurusan!")
+    }
   }
 
-  const handleUpdate = (formData: Record<string, string>) => {
+  const handleUpdate = async (formData: Record<string, string>) => {
     if (!editItem) return
-    setData((prev) =>
-      prev.map((item) =>
-        item.id === editItem.id
-          ? { ...item, name: formData.name, description: formData.description }
-          : item
-      )
-    )
+    try {
+      await axios.put(`http://localhost:5000/jurusan/${editItem.id}`, {
+        nama_jurusan: formData.nama_jurusan,
+        deskripsi: formData.deskripsi,
+      })
+      setEditItem(null)
+      fetchJurusan() 
+    } catch (err: any) {
+      console.error(err)
+      alert(err.response?.data?.message || "Gagal update jurusan!")
+    }
   }
 
-  const handleDelete = (id: number) => {
-    setData((prev) => prev.filter((item) => item.id !== id))
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Yakin nih mau hapus jurusan ini?")) {
+      try {
+        await axios.delete(`http://localhost:5000/jurusan/${id}`)
+        fetchJurusan() 
+      } catch (err: any) {
+        console.error(err)
+        alert(err.response?.data?.message || "Gagal hapus jurusan!")
+      }
+    }
   }
 
   return (
@@ -68,10 +104,6 @@ export default function JurusanPage() {
         <div className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-sm text-muted-foreground">Total Jurusan</p>
           <p className="mt-1 text-2xl font-bold">{data.length}</p>
-        </div>
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground">Total Lesson</p>
-          <p className="mt-1 text-2xl font-bold">24</p>
         </div>
         <div className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-sm text-muted-foreground">Jurusan Aktif</p>
@@ -97,25 +129,29 @@ export default function JurusanPage() {
 
       <div className="rounded-xl border bg-card shadow-sm">
         <div className="grid grid-cols-[60px_1fr_1fr_auto] items-center gap-4 border-b px-4 py-3 text-sm font-medium text-muted-foreground">
-          <span>ID</span>
+          <span>No</span>
           <span>Nama Jurusan</span>
           <span>Deskripsi</span>
           <span>Aksi</span>
         </div>
 
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="px-4 py-12 text-center text-sm text-muted-foreground">
+            Mengambil data dari server...
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="px-4 py-12 text-center text-sm text-muted-foreground">
             Tidak ada data ditemukan
           </div>
         ) : (
-          filtered.map((item) => (
+          filtered.map((item, index) => (
             <div
               key={item.id}
               className="grid grid-cols-[60px_1fr_1fr_auto] items-center gap-4 border-b px-4 py-3 text-sm transition-colors last:border-b-0 hover:bg-muted/50"
             >
-              <span className="font-medium text-muted-foreground">{item.id}</span>
-              <span className="font-medium">{item.name}</span>
-              <span className="text-muted-foreground truncate">{item.description}</span>
+              <span className="font-medium text-muted-foreground">{index + 1}</span>
+              <span className="font-medium">{item.nama_jurusan}</span>
+              <span className="text-muted-foreground truncate">{item.deskripsi || "-"}</span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setEditItem(item)}
@@ -151,7 +187,7 @@ export default function JurusanPage() {
         title="Edit Jurusan"
         fields={jurusanFields}
         defaultValues={
-          editItem ? { name: editItem.name, description: editItem.description } : undefined
+          editItem ? { nama_jurusan: editItem.nama_jurusan, deskripsi: editItem.deskripsi || "" } : undefined
         }
         submitLabel="Simpan"
       />
